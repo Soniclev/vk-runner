@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VkNet;
+using VkNet.Model.RequestParams;
 
 namespace vk_runner
 {
@@ -14,7 +15,12 @@ namespace vk_runner
 		static void Main(string[] args)
 		{
 			VkApi api = _authorizer.Authorize();
-			Console.WriteLine(api.Status.Get(api.UserId ?? 1).Text);
+
+			var response = api.NewsFeed.Get(new NewsFeedGetParams()
+			{
+				Count = 10
+			});
+
 			Console.ReadKey();
 		}
 	}

@@ -38,21 +38,26 @@ namespace vk_runner
 		{
 			if (File.Exists(AccessTokenPath))
 			{
-				try
-				{
-					VkApi api = new VkApi(InitLogger());
-					ApiAuthParams authParams = new ApiAuthParams()
-					{
-						AccessToken = ReadAccessToken(),
-						Settings = Settings.All
-					};
-					api.Authorize(authParams);
-					return api;
-				}
-				catch (AccessTokenInvalidException e)
-				{
-					Console.WriteLine(e);
-				}
+			    try
+			    {
+			        VkApi api = new VkApi(InitLogger());
+			        ApiAuthParams authParams = new ApiAuthParams()
+			        {
+			            AccessToken = ReadAccessToken(),
+			            Settings = Settings.All
+			        };
+			        api.Authorize(authParams);
+			        api.Database.GetCountriesById(1); // делаем какой-либо запрос, чтобы проверить access_token
+			        return api;
+			    }
+			    catch (AccessTokenInvalidException e)
+			    {
+			        Console.WriteLine(e);
+			    }
+			    catch (UserAuthorizationFailException e)
+			    {
+			        Console.WriteLine(e.Message);
+			    }
 			}
 			Relogin();
 			return Authorize();
@@ -90,7 +95,7 @@ namespace vk_runner
 					TwoFactorAuthorization = TwoFactorImplementation
 				};
 				api.Authorize(authParams);
-			
+
 				WriteAccessToken(api.Token);
 			}
 		}
