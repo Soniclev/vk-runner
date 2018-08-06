@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -63,7 +64,7 @@ namespace vk_runner
 			return Authorize();
 		}
 
-		private string TwoFactorImplementation()
+		private string GetTwoFactorCode()
 		{
 			Console.WriteLine("Enter code from SMS or VK administrators message for completing the two factor authorize:");
 			Console.Write("> ");
@@ -71,36 +72,88 @@ namespace vk_runner
 		}
 
 		private void Relogin()
-		{
-			Console.WriteLine("Enter your application id:");
-			Console.Write("> ");
-			var appId = ulong.Parse(Console.ReadLine());
+        {
+            var appId = GetAppId();
+            var login = GetLogin();
+            var password = GetPassword();
 
-			Console.WriteLine("Enter your phone number or email:");
-			Console.Write("> ");
-			var login = Console.ReadLine();
+            using (VkApi api = new VkApi())
+            {
+                ApiAuthParams authParams = new ApiAuthParams()
+                {
+                    ApplicationId = appId,
+                    Login = login,
+                    Password = password,
+                    Settings = Settings.All,
+                    TwoFactorAuthorization = GetTwoFactorCode
+                };
+                api.Authorize(authParams);
 
-			Console.WriteLine("Enter your password:");
-			Console.Write("> ");
-			var password = Console.ReadLine();
+                WriteAccessToken(api.Token);
+            }
+        }
 
-			using (VkApi api = new VkApi())
-			{
-				ApiAuthParams authParams = new ApiAuthParams()
-				{
-					ApplicationId = appId,
-					Login = login,
-					Password = password,
-					Settings = Settings.All,
-					TwoFactorAuthorization = TwoFactorImplementation
-				};
-				api.Authorize(authParams);
+        private static string GetPassword()
+        {
+            string password = null;
 
-				WriteAccessToken(api.Token);
-			}
-		}
+            while (true)
+            {
+                Console.WriteLine("Enter your password:");
+                Console.Write("> ");
+                password = Console.ReadLine();
 
-		private string ReadAccessToken()
+                if (!string.IsNullOrEmpty(password))
+                {
+                    break;
+                }
+                Console.WriteLine("The password is invalid, try again");
+            }
+
+            return password;
+        }
+
+        private static string GetLogin()
+        {
+            string login = null;
+
+            while (true)
+            {
+                Console.WriteLine("Enter your phone number or email:");
+                Console.Write("> ");
+                login = Console.ReadLine();
+
+                if (!string.IsNullOrEmpty(login))
+                {
+                    break;
+                }
+                Console.WriteLine("The phone number or email is invalid, try again");
+            }
+
+            return login;
+        }
+
+        private static ulong GetAppId()
+        {
+            string appId = null;
+
+            while (true)
+            {
+                Console.WriteLine("Enter your application id:");
+                Console.Write("> ");
+                appId = Console.ReadLine();
+
+                if (appId?.ToCharArray().All(c => char.IsDigit(c)) == true)
+                {
+                    break;
+                }
+                Console.WriteLine("The application id is invalid, try again");
+            }
+
+            return ulong.Parse(appId);
+        }
+
+        private string ReadAccessToken()
 		{
 			return File.ReadAllText(AccessTokenPath);
 		}
