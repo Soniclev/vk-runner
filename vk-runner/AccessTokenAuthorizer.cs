@@ -2,8 +2,6 @@
 using System.IO;
 using System.Linq;
 using NLog;
-using NLog.Config;
-using NLog.Targets;
 using VkNet;
 using VkNet.Enums.Filters;
 using VkNet.Exception;
@@ -11,9 +9,8 @@ using VkNet.Model;
 
 namespace vk_runner
 {
-    class AccessTokenAuthorizer : IAuthorizer
+    internal class AccessTokenAuthorizer : IAuthorizer
     {
-        private const string LogPath = @"..\..\log.txt";
         private readonly ICredentialsProvider _credentialsProvider;
         private readonly IAccessTokenStorage _tokenStorage;
 
@@ -23,36 +20,20 @@ namespace vk_runner
             _tokenStorage = tokenStorage;
         }
 
-        /// <summary>
-        /// Инициализация логгера.
-        /// </summary>
-        /// <returns>Логгер</returns>
-        private static ILogger InitLogger()
+        public VkApi Authorize(Settings settings = null, ILogger logger = null)
         {
-            var fileTarget = new FileTarget
-            {
-                Layout = @"${date:format=HH\:mm\:ss} ${logger} ${message}",
-                FileName = LogPath
-            };
+            if (settings == null)
+                settings = Settings.All;
 
-            var config = new LoggingConfiguration();
-            config.AddTarget("file", fileTarget);
-            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, fileTarget));
-            LogManager.Configuration = config;
-            return LogManager.GetLogger("VkApi");
-        }
-
-        public VkApi Authorize()
-        {
             if (_tokenStorage.IsAccessTokenExists())
             {
                 try
                 {
-                    VkApi api = new VkApi(InitLogger());
-                    ApiAuthParams authParams = new ApiAuthParams()
+                    var api = new VkApi(logger);
+                    var authParams = new ApiAuthParams
                     {
                         AccessToken = _tokenStorage.ReadAccessToken(),
-                        Settings = Settings.All
+                        Settings = settings
                     };
                     api.Authorize(authParams);
                     api.Database.GetCountriesById(1); // делаем какой-либо запрос, чтобы проверить access_token
@@ -69,7 +50,7 @@ namespace vk_runner
             }
 
             Relogin();
-            return Authorize();
+            return Authorize(settings, logger);
         }
 
         private void Relogin()
@@ -78,7 +59,7 @@ namespace vk_runner
             var login = _credentialsProvider.GetLogin();
             var password = _credentialsProvider.GetPassword();
 
-            using (VkApi api = new VkApi())
+            using (var api = new VkApi())
             {
                 ApiAuthParams authParams = new ApiAuthParams()
                 {

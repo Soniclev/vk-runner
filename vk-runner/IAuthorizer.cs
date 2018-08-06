@@ -1,9 +1,11 @@
-﻿using VkNet;
+﻿using NLog;
+using VkNet;
+using VkNet.Enums.Filters;
 
 namespace vk_runner
 {
 	public interface IAuthorizer
 	{
-		VkApi Authorize();
+		VkApi Authorize(Settings settings = null, ILogger logger = null);
 	}
 }

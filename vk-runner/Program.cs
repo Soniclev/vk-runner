@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VkNet;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using VkNet.Model.RequestParams;
 
 namespace vk_runner
 {
-	class Program
+	internal static class Program
 	{
-		private static readonly IAuthorizer Authorizer = new AccessTokenAuthorizer(new ConsoleCredentialsProvider(), new AccessTokenFileStorage());
+	    private const string LogPath = @"..\..\log.txt";
+	    private static readonly IAuthorizer Authorizer = new AccessTokenAuthorizer(new ConsoleCredentialsProvider(), new AccessTokenFileStorage());
 
 		static void Main(string[] args)
 		{
-			VkApi api = Authorizer.Authorize();
+			var api = Authorizer.Authorize(logger: InitLogger());
 
 			var response = api.NewsFeed.Get(new NewsFeedGetParams()
 			{
@@ -23,5 +26,24 @@ namespace vk_runner
 
 			Console.ReadKey();
 		}
+
+	    /// <summary>
+	    /// Инициализация логгера.
+	    /// </summary>
+	    /// <returns>Логгер</returns>
+	    private static ILogger InitLogger()
+	    {
+	        var fileTarget = new FileTarget
+	        {
+	            Layout = @"${date:format=HH\:mm\:ss} ${logger} ${message}",
+	            FileName = LogPath
+	        };
+
+	        var config = new LoggingConfiguration();
+	        config.AddTarget("file", fileTarget);
+	        config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, fileTarget));
+	        LogManager.Configuration = config;
+	        return LogManager.GetLogger("VkApi");
+	    }
 	}
 }
