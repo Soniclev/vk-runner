@@ -10,7 +10,7 @@ namespace vk_runner
 {
 	class Program
 	{
-		private static readonly IAuthorizer _authorizer = new AccessTokenAuthorizer();
+		private static readonly IAuthorizer _authorizer = new AccessTokenAuthorizer(new ConsoleCredentialsProvider());
 
 		static void Main(string[] args)
 		{
