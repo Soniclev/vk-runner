@@ -82,7 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessTokenAuthorizer.cs" />
+    <Compile Include="AccessTokenFileStorage.cs" />
     <Compile Include="ConsoleCredentialsProvider.cs" />
+    <Compile Include="IAccessTokenStorage.cs" />
     <Compile Include="IAuthorizer.cs" />
     <Compile Include="ICredentialsProvider.cs" />
     <Compile Include="Program.cs" />

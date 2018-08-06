@@ -10,11 +10,11 @@ namespace vk_runner
 {
 	class Program
 	{
-		private static readonly IAuthorizer _authorizer = new AccessTokenAuthorizer(new ConsoleCredentialsProvider());
+		private static readonly IAuthorizer Authorizer = new AccessTokenAuthorizer(new ConsoleCredentialsProvider(), new AccessTokenFileStorage());
 
 		static void Main(string[] args)
 		{
-			VkApi api = _authorizer.Authorize();
+			VkApi api = Authorizer.Authorize();
 
 			var response = api.NewsFeed.Get(new NewsFeedGetParams()
 			{

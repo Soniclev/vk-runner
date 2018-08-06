@@ -13,13 +13,14 @@ namespace vk_runner
 {
     class AccessTokenAuthorizer : IAuthorizer
     {
-        private const string AccessTokenPath = @"..\..\token.txt";
         private const string LogPath = @"..\..\log.txt";
         private readonly ICredentialsProvider _credentialsProvider;
+        private readonly IAccessTokenStorage _tokenStorage;
 
-        public AccessTokenAuthorizer(ICredentialsProvider credentialsProvider)
+        public AccessTokenAuthorizer(ICredentialsProvider credentialsProvider, IAccessTokenStorage tokenStorage)
         {
             _credentialsProvider = credentialsProvider;
+            _tokenStorage = tokenStorage;
         }
 
         /// <summary>
@@ -43,14 +44,14 @@ namespace vk_runner
 
         public VkApi Authorize()
         {
-            if (File.Exists(AccessTokenPath))
+            if (_tokenStorage.IsAccessTokenExists())
             {
                 try
                 {
                     VkApi api = new VkApi(InitLogger());
                     ApiAuthParams authParams = new ApiAuthParams()
                     {
-                        AccessToken = ReadAccessToken(),
+                        AccessToken = _tokenStorage.ReadAccessToken(),
                         Settings = Settings.All
                     };
                     api.Authorize(authParams);
@@ -66,6 +67,7 @@ namespace vk_runner
                     Console.WriteLine(e.Message);
                 }
             }
+
             Relogin();
             return Authorize();
         }
@@ -88,18 +90,8 @@ namespace vk_runner
                 };
                 api.Authorize(authParams);
 
-                WriteAccessToken(api.Token);
+                _tokenStorage.WriteAccessToken(api.Token);
             }
-        }
-
-        private string ReadAccessToken()
-        {
-            return File.ReadAllText(AccessTokenPath);
-        }
-
-        private void WriteAccessToken(string accessToken)
-        {
-            File.WriteAllText(AccessTokenPath, accessToken);
         }
     }
 }
