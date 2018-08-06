@@ -18,7 +18,7 @@ namespace vk_runner
                 Console.Write("> ");
                 appId = Console.ReadLine();
 
-                if (appId?.ToCharArray().All(c => char.IsDigit(c)) == true)
+                if (IsNumericString(appId))
                 {
                     break;
                 }
@@ -70,22 +70,29 @@ namespace vk_runner
 
         public string GetTwoFactorCode()
         {
-            string appId = null;
+            string code = null;
 
             while (true)
             {
                 Console.WriteLine("Enter code from SMS or VK administrators message for completing the two factor authorize:");
                 Console.Write("> ");
-                appId = Console.ReadLine();
+                code = Console.ReadLine();
 
-                if (appId?.ToCharArray().All(c => char.IsDigit(c)) == true)
+                if (IsNumericString(code))
                 {
                     break;
                 }
                 Console.WriteLine("The verification code is invalid, try again");
             }
 
-            return appId;
+            return code;
+        }
+
+        private static bool IsNumericString(string appId)
+        {
+            if (string.IsNullOrWhiteSpace(appId))
+                return false;
+            return appId.ToCharArray().All(c => char.IsDigit(c));
         }
     }
 }
