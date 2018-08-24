@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using NLog;
+using Microsoft.Extensions.Logging;
 using VkNet;
 using VkNet.Enums.Filters;
 using VkNet.Exception;
@@ -20,7 +20,7 @@ namespace vk_runner
             _tokenStorage = tokenStorage;
         }
 
-        public VkApi Authorize(Settings settings = null, ILogger logger = null)
+        public VkApi Authorize(Settings settings = null, ILogger<VkApi> logger = null)
         {
             if (settings == null)
                 settings = Settings.All;

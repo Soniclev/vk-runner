@@ -43,6 +43,9 @@
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
       <HintPath>..\..\Git\vk-fork\Build\Debug\net45\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+      <HintPath>..\..\Git\vk-fork\Build\Debug\net45\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Threading.Tasks">
       <HintPath>..\..\Git\vk-fork\Build\Debug\net45\Microsoft.Threading.Tasks.dll</HintPath>
     </Reference>
