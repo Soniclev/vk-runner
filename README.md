@@ -9,7 +9,7 @@
 ```csharp
 static void Main(string[] args)
 {
-    var api = Authorizer.Authorize(logger: InitLogger());
+    var api = Authorizer.Authorize();
 
     var response = api.NewsFeed.Get(new NewsFeedGetParams()
     {
